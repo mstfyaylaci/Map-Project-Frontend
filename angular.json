@@ -34,12 +34,22 @@
             "inlineStyleLanguage": "scss",
             "assets": [
               "src/favicon.ico",
+              "src/assets/css/portal.css",
               "src/assets"
+              
             ],
             "styles": [
-              "src/styles.scss"
+              "src/styles.scss",
+              "./node_modules/bootstrap/dist/css/bootstrap.min.css",
+              "src/assets/css/portal.css",
+              "./node_modules/ngx-toastr/toastr.css",
+              "node_modules/ol/ol.css"
+              
             ],
-            "scripts": []
+            "scripts": [
+              "./node_modules/jquery/dist/jquery.min.js",
+              "./node_modules/bootstrap/dist/js/bootstrap.bundle.js"
+            ]
           },
           "configurations": {
             "production": {
@@ -104,5 +114,8 @@
         }
       }
     }
+  },
+  "cli": {
+    "analytics": "8c4cccfa-40e3-44f0-a837-b3ce878a6049"
   }
 }

@@ -1,0 +1,20 @@
+#pointNameInput {
+    width: 250px;
+    font-size: 14px;
+    margin: 0 auto; /* Bu satır ile input alanını yatayda ortalar */
+    display: block; /* Input alanını blok düzene getirir, böylece diğer öğelerle yatayda hizalanabilir */
+  }
+  .dialog-header {
+    display: flex;
+    margin-top: 25px;
+    margin-left: 125px;
+    align-items: center;
+    margin-bottom: 20px; /* Opsiyonel: Aralarda boşluk bırakmak için */
+  }
+  
+  .dialog-header h2 {
+    margin: 0; /* H2 elementinin default margin'lerini kaldırır */
+  }
+  .mat-dialog-actions{
+    margin: 0; 
+  }

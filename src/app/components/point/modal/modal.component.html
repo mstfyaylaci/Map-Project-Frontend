@@ -1,0 +1,66 @@
+<div mat-dialog-content>
+  <div class="dialog-header">
+    
+    <h2 mat-dialog-title>Nokta Ekle</h2>
+    
+  </div>
+
+  <form
+    [formGroup]="pointAddForm"
+    (ngSubmit)="add()"
+    id="pointNameInput"
+  >
+    <div class="form-floating mb-3">
+      <input
+        formControlName="pointName"
+        type="text"
+        class="form-control rounded-3"
+        id="pointName"
+        placeholder="Nokta ismi"
+        required
+      />
+      <label for="pointName">Nokta ismi</label>
+    </div>
+    <div class="form-floating mb-3">
+      <input
+        formControlName="pointNumber"
+        type="number"
+        class="form-control rounded-3"
+        id="pointNumber"
+        placeholder="Nokta Numarası"
+      />
+      <label for="pointNumber">Nokta Numarası</label>
+    </div>
+    <div class="form-floating mb-3">
+      <input
+        formControlName="latitude"
+        type="number"
+        class="form-control rounded-3"
+        id="latitude"
+        placeholder="Enlem"
+      />
+      <label for="latitude">Enlem</label>
+    </div>
+    <div class="form-floating mb-3">
+      <input
+        formControlName="longitude"
+        type="number"
+        class="form-control rounded-3"
+        id="longitude"
+        placeholder="Boylam"
+      />
+      <label for="longitude">Boylam</label>
+    </div>
+    <button
+      class="w-100 mb-2 btn btn btn-primary"
+      type="submit"
+      [disabled]="pointAddForm.invalid"
+    >
+      Ekle
+    </button>
+    <div mat-dialog-actions class="mat-dialog-actions">
+      <button class="w-100 mb-2 btn btn btn-danger" (click)="onNoClick()">İptal</button>
+    </div>
+  </form>
+</div>
+
