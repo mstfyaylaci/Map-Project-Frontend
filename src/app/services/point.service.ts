@@ -11,6 +11,8 @@ import { ResponseModel } from '../models/responseModel';
 })
 export class PointService {
 
+
+  
   apiUrl="https://localhost:44363/api/"
 
   constructor(private httpClient:HttpClient) { }

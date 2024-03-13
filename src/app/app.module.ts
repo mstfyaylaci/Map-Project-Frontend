@@ -8,7 +8,7 @@ import { AppComponent } from './app.component';
 
 import { MapComponent } from './components/map/map.component';
 import { PointComponent } from './components/point/point.component';
-import { SidePanelComponent } from './components/side-panel/side-panel.component';
+
 import { NaviComponent } from './components/navi/navi.component';
 
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
@@ -17,6 +17,7 @@ import { provideAnimationsAsync } from '@angular/platform-browser/animations/asy
 import { ModalComponent } from './components/point/modal/modal.component';
 import { FilterPipePipe } from './pipes/filter-pipe.pipe';
 import { ToastrModule } from 'ngx-toastr';
+import { QueryPointModalComponent } from './components/point/query-point-modal/query-point-modal.component';
 
 
 @NgModule({
@@ -25,11 +26,12 @@ import { ToastrModule } from 'ngx-toastr';
     
     MapComponent,
     PointComponent,
-    SidePanelComponent,
+    
     NaviComponent,
     AddPointComponent,
     ModalComponent,
     FilterPipePipe,
+    QueryPointModalComponent,
    
   ],
   imports: [

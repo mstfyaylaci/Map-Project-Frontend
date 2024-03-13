@@ -1,11 +1,12 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, EventEmitter, OnInit, Output } from '@angular/core';
 import { NgForm } from '@angular/forms';
 import { PointService } from '../../../services/point.service';
 import { Point } from '../../../models/point';
 import { MatDialog } from '@angular/material/dialog';
 import { ModalComponent } from '../modal/modal.component';
+import { AddPointService } from '../../../services/add-point.service';
 
-declare var $: any;
+
 
 @Component({
   selector: 'app-add-point',
@@ -15,31 +16,56 @@ declare var $: any;
 export class AddPointComponent implements OnInit {
   
   point: Point=new Point();
-
- 
-
+  isDrawingModeActive: boolean = false;
+  
 
 
   constructor(
     private pointService: PointService,
-    public dialog: MatDialog
+    public dialog: MatDialog,
+    private addPointService:AddPointService
     ) { }
  
-  
-  
-
   ngOnInit(): void {
     
-
-
   }
-
-  addPoint(form: NgForm): void {
+ 
+  openAddPointModal() {
     
-    this.pointService.addPoint(this.point).subscribe((response) => {
-      // API yanıtını işlethi
+    const dialogRef = this.dialog.open(ModalComponent, {
+      
+      width: '400px',
+      height:'470px',
+      
+      data: { }
     });
+
+    dialogRef.afterClosed().subscribe(result => {
+      
+    });
+
   }
+
+  onToggleDrawingMode() {
+    // toggleDrawingMode olayını tetikle
+    this.isDrawingModeActive = !this.isDrawingModeActive;
+    
+    
+      this.addPointService.emitButtonClick();
+    
+   
+    
+  }
+
+
+
+
+   // addPoint(form: NgForm): void {
+    
+  //   this.pointService.addPoint(this.point).subscribe((response) => {
+  //     // API yanıtını işlethi
+  //   });
+  // }
 
   // openAddPointModal() {
     
@@ -52,22 +78,8 @@ export class AddPointComponent implements OnInit {
   //   $('#addPointModal').modal('hide');
   // }
 
-  openAddPointModal() {
-    
-    const dialogRef = this.dialog.open(ModalComponent, {
-      
-      width: '400px',
-      height:'470px',
-      
-      data: { }
-    });
-
-    dialogRef.afterClosed().subscribe(result => {
-      console.log('The dialog was closed');
-    });
-
-  }
-
+  
+  
 
   
 

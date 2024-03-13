@@ -11,7 +11,7 @@ import { Point } from '../../../models/point';
   templateUrl: './modal.component.html',
   styleUrls: ['./modal.component.scss']
 })
-export class ModalComponent implements OnInit ,AfterViewInit{
+export class ModalComponent implements OnInit{
 
   pointAddForm: FormGroup;
   point: Point = new Point();
@@ -24,9 +24,7 @@ export class ModalComponent implements OnInit ,AfterViewInit{
     @Inject(MAT_DIALOG_DATA) public data: Mapdata
   ) {}
 
-  ngAfterViewInit(): void {
-    
-  }
+  
 
   onNoClick(): void {
     this.dialogRef.close();

@@ -1,18 +1,18 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { SidePanelComponent } from './side-panel.component';
+import { QueryPointModalComponent } from './query-point-modal.component';
 
-describe('SidePanelComponent', () => {
-  let component: SidePanelComponent;
-  let fixture: ComponentFixture<SidePanelComponent>;
+describe('QueryPointModalComponent', () => {
+  let component: QueryPointModalComponent;
+  let fixture: ComponentFixture<QueryPointModalComponent>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [SidePanelComponent]
+      declarations: [QueryPointModalComponent]
     })
     .compileComponents();
     
-    fixture = TestBed.createComponent(SidePanelComponent);
+    fixture = TestBed.createComponent(QueryPointModalComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });

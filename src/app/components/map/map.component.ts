@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, ElementRef, OnChanges, OnInit, SimpleChanges, ViewChild } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, OnInit, ViewChild } from '@angular/core';
 import 'ol/ol.css';
 import Map from 'ol/Map';
 import View from 'ol/View';
@@ -11,23 +11,33 @@ import { Coordinate, toStringHDMS } from 'ol/coordinate';
 import { Feature, Overlay } from 'ol';
 import VectorSource from 'ol/source/Vector';
 import VectorLayer from 'ol/layer/Vector';
-import Style from 'ol/style/Style';
+import { Circle as CircleStyle, Fill, Stroke, Style } from 'ol/style';
+import { Draw, Modify, Snap } from 'ol/interaction';
 import Icon from 'ol/style/Icon';
 import { PointService } from '../../services/point.service';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ModalComponent } from '../point/modal/modal.component';
 import { MatDialog } from '@angular/material/dialog';
 import { ToastrService } from 'ngx-toastr';
+import { Subscription, every } from 'rxjs';
+import { AddPointService } from '../../services/add-point.service';
+
 @Component({
   selector: 'app-map',
   templateUrl: './map.component.html',
   styleUrls: ['./map.component.scss']
 })
+
 export class MapComponent implements OnInit, AfterViewInit{
 
+  
 
   overlay: Overlay;
   public map!: Map
+  draw:Draw
+  isDrawingModeActive: boolean = false;
+  private addPointButton: Subscription;
+
 
   point: Point = new Point();
   points: Point[] = []
@@ -45,27 +55,33 @@ export class MapComponent implements OnInit, AfterViewInit{
   constructor(
     private pointService: PointService,
     public dialog: MatDialog,
-    private toastrService:ToastrService
+    private toastrService:ToastrService,
+    private addPointService:AddPointService
     
 
-  ) { }
+  ) { this.addPointButton=this.addPointService.buttonClick$.subscribe(()=>{
+     this.toggleDrawingMode()
+  }) }
+  
   
 
   ngOnInit(): void {
-    this.getPoints();
+    
   }
 
   ngAfterViewInit(): void {
     this.getMap();
     this.initOverlay();
-    
+    this.getPoints();
     
 
   }
 
   getMap(): void {
+    
     this.map = new Map({
-      target: "map",
+      
+      target: this.mapElement.nativeElement,
       layers: [
         new TileLayer({
           source: new OSM(),
@@ -90,37 +106,33 @@ export class MapComponent implements OnInit, AfterViewInit{
     });
   }
 
-  getPoints() {
+  getPoints(): void {
     this.pointService.getPoints().subscribe(response => {
-      this.points = response.data
-      
-       // Vektör katmanı oluştur
-       const vectorSource = new VectorSource();
+      this.points = response.data;
 
-      this.points.forEach(point=>{
-        
-        const feature= new Feature({
-          geometry:new OlPoint(fromLonLat([point.latitude,point.longitude]))
-        })
-        vectorSource.addFeature(feature);
-
-        const vectorLayer=new VectorLayer({
-          source: vectorSource,
-          style: new Style({
-            image: new Icon({
-              anchor:[0.5,1],
-              src:'assets/point-2.png',
-              scale:0.04
-            }),
-          }),
+      const features = this.points.map(point => {
+        return new Feature({
+          geometry: new OlPoint(fromLonLat([point.latitude,point.longitude ]))
         });
+      });
 
-        this.map.addLayer(vectorLayer)
+      const vectorSource = new VectorSource({
+        features: features
+      });
 
-        
-       
-      })
-    })
+      const vectorLayer = new VectorLayer({
+        source: vectorSource,
+        style: new Style({
+          image: new Icon({
+            anchor: [0.5, 1],
+            src: 'assets/point-2.png',
+            scale: 0.04
+          })
+        })
+      });
+
+      this.map.addLayer(vectorLayer);
+    });
   }
 
   initOverlay(): void {
@@ -135,21 +147,105 @@ export class MapComponent implements OnInit, AfterViewInit{
     this.overlay.setPosition(undefined);
   }
 
-  openAddPointModal() {
+  openAddPointModal(coordinates: number[]) {
     
     const dialogRef = this.dialog.open(ModalComponent, {
       
       width: '400px',
       height:'470px',
       
-      data: { clickedCoordinate: this.clickedCoordinate}
+      data: { clickedCoordinate: coordinates}
+      
     });
 
+
     dialogRef.afterClosed().subscribe(result => {
-      console.log('The dialog was closed');
+      
+        this.getPoints();
+    
     });
 
   }
+
+  
+  enableDrawingTool() {
+   
+    const source = new VectorSource();
+    const vectorLayer = new VectorLayer({
+      source: source,
+      style: new Style({
+        fill: new Fill({
+          color: 'rgba(255, 255, 255, 0.2)',
+        }),
+        stroke: new Stroke({
+          color: '#ffcc33',
+          width: 2,
+        }),
+        image: new Icon({
+          anchor: [0.5, 1],
+          src: 'assets/point-2.png',
+          scale: 0.04
+        }),
+      }),
+    });
+  
+    this.map.addLayer(vectorLayer);
+  
+    const clearFeatures = () => {
+      source.clear(); // Mevcut özellikleri temizle
+    };
+
+      this.draw = new Draw({
+      source: source,
+      type: 'Point', // Burada çizim aracının türünü belirtebilirsiniz, örneğin 'LineString', 'Polygon' vb.
+      style: new Style({
+        image: new Icon({
+          anchor: [0.5, 1],
+          src: 'assets/point-2.png',
+          scale: 0.04
+        })
+      })
+    });
+
+
+    this.draw.on('drawstart', clearFeatures); // Yeni bir çizim başlatıldığında önceki özellikleri temizle
+
+    this.draw.on('drawend', (event) => {
+      const feature = event.feature;
+      if (feature) {
+        const geometry = feature.getGeometry();
+        if (geometry && geometry.getType()==='Point') {
+          const coordinates = (geometry as OlPoint).getCoordinates();
+          const transformCoordinates = transform(coordinates, 'EPSG:3857', 'EPSG:4326');
+          this.openAddPointModal(transformCoordinates);}
+      }
+    });
+  
+    this.map.addInteraction(this.draw);
+    
+    
+    
+  }
+
+  toggleDrawingMode() {
+    
+    this.isDrawingModeActive = !this.isDrawingModeActive;
+    
+    if (this.isDrawingModeActive) {
+      this.toastrService.success("Çizim aracı aktif")
+      this.enableDrawingTool()
+     
+      
+    } else {
+      
+      this.toastrService.warning("Çizim aracı devre dışı")
+      this.draw.setActive(false)
+      
+    }
+   
+  }
+
+  
 
  
 

@@ -2,6 +2,8 @@ import { Component, OnInit } from '@angular/core';
 import { Point } from '../../models/point';
 import { PointService } from '../../services/point.service';
 import { ToastrService } from 'ngx-toastr';
+import { MatDialog } from '@angular/material/dialog';
+import { QueryPointModalComponent } from './query-point-modal/query-point-modal.component';
 
 @Component({
   selector: 'app-point',
@@ -13,29 +15,40 @@ export class PointComponent implements OnInit {
   points: Point[] = []
   point: Point
   dataLoaded = false
-  filterText = ""
+  
 
   constructor(
     private pointService: PointService,
-    private toastrService:ToastrService) { }
+    private toastrService:ToastrService,
+    public dialog: MatDialog) { }
 
   ngOnInit(): void {
-    this.getPoints()
+    
   }
   getPoints() {
+    
     this.pointService.getPoints().subscribe((response) => {
       this.points = response.data
       this.dataLoaded = true
-      this.toastrService.success(response.message)
+      
     })
   }
 
-  deletePoint(point: Point) {
-    this.pointService.deletePoint(point).subscribe(response => {
-      this.points = this.points.filter(p => p !== point);
-      this.toastrService.error(response.message,point.pointName)
+  
 
+  openQueryPointModal(){
+    
+    this.getPoints()
+    const dialogRef=this.dialog.open(QueryPointModalComponent,{
+      width:'850px',
+      height:'500px',
+
+      data: { 
+              }
     })
 
+    dialogRef.afterClosed().subscribe(result => {
+     this.getPoints()
+    });
   }
 }
