@@ -14,74 +14,35 @@ import { AddPointService } from '../../../services/add-point.service';
   styleUrl: './add-point.component.scss'
 })
 export class AddPointComponent implements OnInit {
-  
-  point: Point=new Point();
+
+  point: Point = new Point();
   isDrawingModeActive: boolean = false;
-  
+
 
 
   constructor(
     private pointService: PointService,
     public dialog: MatDialog,
-    private addPointService:AddPointService
-    ) { }
- 
+    private addPointService: AddPointService
+  ) { }
+
   ngOnInit(): void {
-    
-  }
- 
-  openAddPointModal() {
-    
-    const dialogRef = this.dialog.open(ModalComponent, {
-      
-      width: '400px',
-      height:'470px',
-      
-      data: { }
-    });
-
-    dialogRef.afterClosed().subscribe(result => {
-      
-    });
 
   }
+
+  
 
   onToggleDrawingMode() {
     // toggleDrawingMode olayını tetikle
-    this.isDrawingModeActive = !this.isDrawingModeActive;
     
-    
-      this.addPointService.emitButtonClick();
-    
-   
-    
+
+    this.addPointService.emitButtonClick();
+
+
+
   }
 
 
-
-
-   // addPoint(form: NgForm): void {
-    
-  //   this.pointService.addPoint(this.point).subscribe((response) => {
-  //     // API yanıtını işlethi
-  //   });
-  // }
-
-  // openAddPointModal() {
-    
-  //   $('#addPointModal').modal('show');
-  //   // Modal açıldığında API'den noktaları yükleme fonksiyonunu çağırabilirsiniz (örneğin getPoints())
-
-  // }
-
-  // closeModal(){
-  //   $('#addPointModal').modal('hide');
-  // }
-
-  
-  
-
-  
 
 
 

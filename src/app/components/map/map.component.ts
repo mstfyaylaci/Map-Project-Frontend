@@ -28,15 +28,16 @@ import { AddPointService } from '../../services/add-point.service';
   styleUrls: ['./map.component.scss']
 })
 
-export class MapComponent implements OnInit, AfterViewInit{
+export class MapComponent implements OnInit, AfterViewInit {
 
-  
+
 
   overlay: Overlay;
   public map!: Map
-  draw:Draw
+  draw: Draw
   isDrawingModeActive: boolean = false;
   private addPointButton: Subscription;
+ 
 
 
   point: Point = new Point();
@@ -55,32 +56,35 @@ export class MapComponent implements OnInit, AfterViewInit{
   constructor(
     private pointService: PointService,
     public dialog: MatDialog,
-    private toastrService:ToastrService,
-    private addPointService:AddPointService
-    
+    private toastrService: ToastrService,
+    private addPointService: AddPointService
 
-  ) { this.addPointButton=this.addPointService.buttonClick$.subscribe(()=>{
-     this.toggleDrawingMode()
-  }) }
-  
-  
+
+  ) {
+    this.addPointButton = this.addPointService.buttonClick$.subscribe(() => {
+      
+      this.toggleDrawingMode()
+    })
+  }
+
+
 
   ngOnInit(): void {
-    
+
   }
 
   ngAfterViewInit(): void {
     this.getMap();
     this.initOverlay();
     this.getPoints();
-    
+
 
   }
 
   getMap(): void {
-    
+
     this.map = new Map({
-      
+
       target: this.mapElement.nativeElement,
       layers: [
         new TileLayer({
@@ -100,8 +104,12 @@ export class MapComponent implements OnInit, AfterViewInit{
       this.clickedCoordinate = transform(coordinate, 'EPSG:3857', 'EPSG:4326');
       this.cordinate = toStringHDMS(this.clickedCoordinate);
       const content = this.popupContentElement.nativeElement;
-      content.innerHTML = '<p>Current coordinates are :</p><code>' + this.cordinate + '</code>';
-      this.overlay.setPosition(coordinate);
+
+      if (!this.isDrawingModeActive) {
+        content.innerHTML = '<p>Current coordinates are :</p><code>' + this.cordinate + '</code>';
+        this.overlay.setPosition(coordinate);
+      }
+
 
     });
   }
@@ -112,7 +120,7 @@ export class MapComponent implements OnInit, AfterViewInit{
 
       const features = this.points.map(point => {
         return new Feature({
-          geometry: new OlPoint(fromLonLat([point.latitude,point.longitude ]))
+          geometry: new OlPoint(fromLonLat([point.latitude, point.longitude]))
         });
       });
 
@@ -149,30 +157,39 @@ export class MapComponent implements OnInit, AfterViewInit{
 
   openAddPointModal(coordinates: number[]) {
     
+    
+
     const dialogRef = this.dialog.open(ModalComponent, {
-      
+
       width: '400px',
-      height:'470px',
-      
-      data: { clickedCoordinate: coordinates}
-      
+      height: '470px',
+
+      data: { clickedCoordinate: coordinates }
+
     });
 
+    
 
     dialogRef.afterClosed().subscribe(result => {
+
+      this.getPoints();
+      this.toggleDrawingMode() /// Burasıda sorulacak!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
       
-        this.getPoints();
-    
+
     });
 
   }
 
-  
+
   enableDrawingTool() {
-   
+
+
+
     const source = new VectorSource();
+
     const vectorLayer = new VectorLayer({
       source: source,
+
       style: new Style({
         fill: new Fill({
           color: 'rgba(255, 255, 255, 0.2)',
@@ -188,14 +205,10 @@ export class MapComponent implements OnInit, AfterViewInit{
         }),
       }),
     });
-  
-    this.map.addLayer(vectorLayer);
-  
-    const clearFeatures = () => {
-      source.clear(); // Mevcut özellikleri temizle
-    };
 
-      this.draw = new Draw({
+    //this.map.addLayer(vectorLayer); //Burasu sorulacak!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+    this.draw = new Draw({
       source: source,
       type: 'Point', // Burada çizim aracının türünü belirtebilirsiniz, örneğin 'LineString', 'Polygon' vb.
       style: new Style({
@@ -208,45 +221,56 @@ export class MapComponent implements OnInit, AfterViewInit{
     });
 
 
-    this.draw.on('drawstart', clearFeatures); // Yeni bir çizim başlatıldığında önceki özellikleri temizle
+    
 
     this.draw.on('drawend', (event) => {
+      
       const feature = event.feature;
       if (feature) {
         const geometry = feature.getGeometry();
-        if (geometry && geometry.getType()==='Point') {
+        if (geometry && geometry.getType() === 'Point') {
           const coordinates = (geometry as OlPoint).getCoordinates();
           const transformCoordinates = transform(coordinates, 'EPSG:3857', 'EPSG:4326');
-          this.openAddPointModal(transformCoordinates);}
+          this.openAddPointModal(transformCoordinates);
+          
+          
+        }
+        
       }
+      
     });
-  
+    
     this.map.addInteraction(this.draw);
-    
-    
-    
+
+
+
   }
+
+
 
   toggleDrawingMode() {
-    
+
     this.isDrawingModeActive = !this.isDrawingModeActive;
-    
+
     if (this.isDrawingModeActive) {
       this.toastrService.success("Çizim aracı aktif")
+
       this.enableDrawingTool()
+
      
-      
+
     } else {
-      
+
       this.toastrService.warning("Çizim aracı devre dışı")
-      this.draw.setActive(false)
       
+      this.map.removeInteraction(this.draw);
+
     }
-   
+
   }
 
-  
 
- 
+
+
 
 }
