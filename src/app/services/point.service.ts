@@ -4,6 +4,7 @@ import { Observable, catchError, tap, throwError } from 'rxjs';
 import { ListResponseModel } from '../models/listResponseModel';
 import { Point } from '../models/point';
 import { ResponseModel } from '../models/responseModel';
+import { SingleResponseModel } from '../models/singleResponseModel';
 
 
 @Injectable({
@@ -24,6 +25,13 @@ export class PointService {
     return this.httpClient.get<ListResponseModel<Point>>(newPath)
   }
 
+  getPointById(pointId:number):Observable<SingleResponseModel<Point>>{
+    let newPath=this.apiUrl+"Points/getid?id="+pointId
+
+    return this.httpClient.get<SingleResponseModel<Point>>(newPath)
+  }
+  
+
   addPoint(point:Point):Observable<ResponseModel>{
     let newPath=this.apiUrl+"Points/add"
 
@@ -35,6 +43,14 @@ export class PointService {
 
   deletePoint(point:Point):Observable<ResponseModel>{
     let newPath=this.apiUrl+"Points/delete"
+    return this.httpClient.post<ResponseModel>(newPath,point).pipe(
+      tap(data=>console.log(JSON.stringify(data))),
+      catchError(this.handleError)
+    )
+  }
+
+  updatePoint(point:Point):Observable<ResponseModel>{
+    let newPath=this.apiUrl+"Points/update"
     return this.httpClient.post<ResponseModel>(newPath,point).pipe(
       tap(data=>console.log(JSON.stringify(data))),
       catchError(this.handleError)

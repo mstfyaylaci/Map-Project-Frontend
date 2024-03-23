@@ -18,6 +18,9 @@ import { ModalComponent } from './components/point/modal/modal.component';
 import { FilterPipePipe } from './pipes/filter-pipe.pipe';
 import { ToastrModule } from 'ngx-toastr';
 import { QueryPointModalComponent } from './components/point/query-point-modal/query-point-modal.component';
+import { ModifyPointModalComponent } from './components/point/modify-point-modal/modify-point-modal.component';
+
+
 
 
 @NgModule({
@@ -32,6 +35,9 @@ import { QueryPointModalComponent } from './components/point/query-point-modal/q
     ModalComponent,
     FilterPipePipe,
     QueryPointModalComponent,
+    ModifyPointModalComponent
+    
+    
    
   ],
   imports: [

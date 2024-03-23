@@ -1,0 +1,73 @@
+<div mat-dialog-content >
+    <div class="dialog-header">
+      
+      <h2 mat-dialog-title>Nokta Güncelle</h2>
+      
+    </div>
+  
+    <form
+      [formGroup]="pointUpdateForm"
+      (ngSubmit)="update()"
+      id="pointNameInput"
+    >
+      <div class="form-floating mb-3">
+        <input
+          formControlName="pointName"
+          type="text"
+          class="form-control rounded-3"
+          id="pointName"
+          placeholder="Nokta ismi"
+          required
+        />
+        <label for="pointName">Nokta ismi</label>
+      </div>
+      <div class="form-floating mb-3">
+        <input
+          formControlName="pointNumber"
+          type="number"
+          class="form-control rounded-3"
+          id="pointNumber"
+          placeholder="Nokta Numarası"
+        />
+        <label for="pointNumber">Nokta Numarası</label>
+      </div>
+      <div class="form-floating mb-3">
+        <input
+          formControlName="latitude"
+          type="number"
+          class="form-control rounded-3"
+          id="latitude"
+          placeholder="Enlem"
+        />
+        <label for="latitude">Enlem</label>
+      </div>
+      <div class="form-floating mb-3">
+        <input
+          formControlName="longitude"
+          type="number"
+          class="form-control rounded-3"
+          id="longitude"
+          placeholder="Boylam"
+        />
+        <label for="longitude">Boylam</label>
+      </div>
+      <div class="d-grid gap-2">
+        <button
+        class="btn btn btn-primary mb-2 w-100" 
+        type="submit"
+        [disabled]="pointUpdateForm.invalid"
+      >
+        Kaydet
+      </button>
+      <button class="  btn btn btn-warning mb-2 w-100">
+        Kordinat Güncelle
+      </button>
+      <div mat-dialog-actions class="mat-dialog-actions">
+        <button class="w-100 mb-2 btn btn btn-danger" (click)="onNoClick()">İptal</button>
+      </div>
+      </div>
+      
+    </form>
+  </div>
+  
+  

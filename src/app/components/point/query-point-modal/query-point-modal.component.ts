@@ -1,9 +1,11 @@
 import { Component, Inject, OnChanges, OnInit, SimpleChanges } from '@angular/core';
-import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
+import { MAT_DIALOG_DATA, MatDialog, MatDialogRef } from '@angular/material/dialog';
 
 import { Point } from '../../../models/point';
 import { PointService } from '../../../services/point.service';
 import { ToastrService } from 'ngx-toastr';
+import { ModifyPointModalComponent } from '../modify-point-modal/modify-point-modal.component';
+
 
 @Component({
   selector: 'app-query-point-modal',
@@ -23,6 +25,8 @@ export class QueryPointModalComponent implements OnInit{
   constructor(public dialogRef: MatDialogRef<QueryPointModalComponent>,
     private pointService:PointService,
     private toastrService:ToastrService,
+    public dialog: MatDialog,
+   
     ) {
     
     
@@ -52,5 +56,39 @@ export class QueryPointModalComponent implements OnInit{
       this.dataLoaded = true
      
     })
+  }
+
+  getModifyPoint(pointId:number){
+
+    this.dialogRef.close()
+    this.pointService.getPointById(pointId).subscribe(response=>{
+      this.point=response.data
+
+      this.openModifyPointModal(this.point)
+    })
+    
+  }
+
+
+  openModifyPointModal(point:Point) {
+    
+    
+    const dialogRef = this.dialog.open(ModifyPointModalComponent, {
+
+      width: '400px',
+      height: '530px',
+
+      data: { point}
+
+    });
+
+    
+
+    dialogRef.afterClosed().subscribe(result => {
+
+      
+
+    });
+
   }
 }

@@ -12,10 +12,10 @@ import { Feature, Overlay } from 'ol';
 import VectorSource from 'ol/source/Vector';
 import VectorLayer from 'ol/layer/Vector';
 import { Circle as CircleStyle, Fill, Stroke, Style } from 'ol/style';
-import { Draw, Modify, Snap } from 'ol/interaction';
+import { Draw,   } from 'ol/interaction';
 import Icon from 'ol/style/Icon';
 import { PointService } from '../../services/point.service';
-import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+
 import { ModalComponent } from '../point/modal/modal.component';
 import { MatDialog } from '@angular/material/dialog';
 import { ToastrService } from 'ngx-toastr';
@@ -42,7 +42,7 @@ export class MapComponent implements OnInit, AfterViewInit {
 
   point: Point = new Point();
   points: Point[] = []
-  pointAddForm: FormGroup
+  
 
   public clickedCoordinate: Coordinate;
   public cordinate: string

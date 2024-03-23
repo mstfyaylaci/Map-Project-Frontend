@@ -21,8 +21,8 @@ export class AddPointComponent implements OnInit {
 
 
   constructor(
-    private pointService: PointService,
-    public dialog: MatDialog,
+    
+    
     private addPointService: AddPointService
   ) { }
 
