@@ -6,6 +6,9 @@ import { PointService } from '../../../services/point.service';
 import { ToastrService } from 'ngx-toastr';
 import { ModifyPointModalComponent } from '../modify-point-modal/modify-point-modal.component';
 
+import { ModifyPointService } from '../../../services/modify-point.service';
+import { DeletePointService } from '../../../services/delete-point.service';
+
 
 @Component({
   selector: 'app-query-point-modal',
@@ -24,8 +27,10 @@ export class QueryPointModalComponent implements OnInit{
    */
   constructor(public dialogRef: MatDialogRef<QueryPointModalComponent>,
     private pointService:PointService,
+    private modifyPointService:ModifyPointService,
     private toastrService:ToastrService,
     public dialog: MatDialog,
+    private deletePointService:DeletePointService
    
     ) {
     
@@ -43,7 +48,8 @@ export class QueryPointModalComponent implements OnInit{
     this.pointService.deletePoint(point).subscribe(response => {
       this.toastrService.error(response.message,point.pointName)
       this.points = this.points.filter(p => p !== point);
-      
+      this.deletePointService.changePoint(point)
+      this.deletePointService.emitButtonClick()
     })
 
   }
@@ -65,6 +71,7 @@ export class QueryPointModalComponent implements OnInit{
       this.point=response.data
 
       this.openModifyPointModal(this.point)
+      
     })
     
   }
@@ -87,7 +94,7 @@ export class QueryPointModalComponent implements OnInit{
     dialogRef.afterClosed().subscribe(result => {
 
       
-
+      this.modifyPointService.emitButtonClick()
     });
 
   }

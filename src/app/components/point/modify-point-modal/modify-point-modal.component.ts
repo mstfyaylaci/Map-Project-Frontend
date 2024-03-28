@@ -6,6 +6,8 @@ import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { PointData } from './pointData';
 import { Point } from '../../../models/point';
 
+import { ModifyPointService } from '../../../services/modify-point.service';
+
 @Component({
   selector: 'app-modify-point-modal',
   templateUrl: './modify-point-modal.component.html',
@@ -21,7 +23,9 @@ export class ModifyPointModalComponent implements OnInit {
     private toastrService:ToastrService,
     private formBuilder: FormBuilder,
     public dialogRef: MatDialogRef<ModifyPointModalComponent>,
-    @Inject(MAT_DIALOG_DATA) public data: PointData
+    @Inject(MAT_DIALOG_DATA) public data: PointData,
+    
+    private modifyPointService:ModifyPointService
   ) {}
   
   ngOnInit(): void {
@@ -73,5 +77,17 @@ update() {
     );
   }
 }
+
+
+
+pointModify() {
+  const point = this.data.point;
+
+  // Point nesnesinin tüm bilgilerini servise gönder
+  this.modifyPointService.changePoint(point);
+  this.toastrService.info("Noktayı sürükleyebilirsiniz")
+  this.dialogRef.close();
+}
+
 
 }

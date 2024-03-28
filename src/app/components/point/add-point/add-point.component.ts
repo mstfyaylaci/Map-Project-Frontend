@@ -1,9 +1,7 @@
 import { Component, EventEmitter, OnInit, Output } from '@angular/core';
-import { NgForm } from '@angular/forms';
-import { PointService } from '../../../services/point.service';
+
 import { Point } from '../../../models/point';
-import { MatDialog } from '@angular/material/dialog';
-import { ModalComponent } from '../modal/modal.component';
+
 import { AddPointService } from '../../../services/add-point.service';
 
 
