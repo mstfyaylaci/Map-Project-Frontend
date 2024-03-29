@@ -91,11 +91,7 @@ export class QueryPointModalComponent implements OnInit{
 
     
 
-    dialogRef.afterClosed().subscribe(result => {
-
-      
-      this.modifyPointService.emitButtonClick()
-    });
+    
 
   }
 }

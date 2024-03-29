@@ -125,19 +125,19 @@ export class MapComponent implements OnInit, AfterViewInit {
 
 
 
-    this.map.on('click', (evt) => {
-      const coordinate = evt.coordinate;
-      this.clickedCoordinate = transform(coordinate, 'EPSG:3857', 'EPSG:4326');
-      this.cordinate = toStringHDMS(this.clickedCoordinate);
-      const content = this.popupContentElement.nativeElement;
+    // this.map.on('click', (evt) => {
+    //   const coordinate = evt.coordinate;
+    //   this.clickedCoordinate = transform(coordinate, 'EPSG:3857', 'EPSG:4326');
+    //   this.cordinate = toStringHDMS(this.clickedCoordinate);
+    //   const content = this.popupContentElement.nativeElement;
 
-      if (!this.isDrawingModeActive) {
-        content.innerHTML = '<p>Current coordinates are :</p><code>' + this.cordinate + '</code>';
-        this.overlay.setPosition(coordinate);
-      }
+    //   if (!this.isDrawingModeActive) {
+    //     content.innerHTML = '<p>Current coordinates are :</p><code>' + this.cordinate + '</code>';
+    //     this.overlay.setPosition(coordinate);
+    //   }
 
 
-    });
+    // });
   }
 
   getPoints(): void {
@@ -206,10 +206,17 @@ export class MapComponent implements OnInit, AfterViewInit {
 
 
     dialogRef.afterClosed().subscribe(result => {
-
-
       this.toggleDrawingMode() /// Burasıda sorulacak!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+      if (result==='save') {
+      
+        console.log("dsfsfd");
+      }else{
+        this.vectorSource.clear()
+        this.map.removeInteraction(this.draw)
+        this.getPoints()
+      }
 
+     
 
     });
 
@@ -325,11 +332,12 @@ export class MapComponent implements OnInit, AfterViewInit {
 
 
   initModifyInteraction(point: Point): void {
-
+    
     const latitude = point.latitude; // Varsayılan olarak latitude ve longitude olduğunu varsayalım
     const longitude = point.longitude;
     const transformedCoordinates = fromLonLat([latitude, longitude]);;
 
+    
   
     const featureToRemove = new Feature({
       geometry: new OlPoint(transformedCoordinates),
@@ -374,6 +382,8 @@ export class MapComponent implements OnInit, AfterViewInit {
     
     this.map.addInteraction(this.modifyInteraction);
 
+    
+    
     // Modify işlemi tamamlandığında, değiştirilen koordinatları servise gönderiyoruz
     this.modifyInteraction.on('modifyend', (event) => {
       this.vectorSource.removeFeature(feature);
@@ -397,6 +407,7 @@ export class MapComponent implements OnInit, AfterViewInit {
         updatePoint.longitude = modifiedLongitude
 
 
+   
         this.openModifyPointModal(updatePoint)
         //this.coordinateService.changeCoordinate(modifiedLatitude, modifiedLongitude);
 
@@ -409,31 +420,29 @@ export class MapComponent implements OnInit, AfterViewInit {
 
   openModifyPointModal(point: Point) {
 
-
+    
+   
     const dialogRef = this.dialog.open(ModifyPointModalComponent, {
 
       width: '400px',
       height: '530px',
 
-      data: { point }
+      
+      data: { point,statusModifyButton:true }
 
     });
 
 
 
     dialogRef.afterClosed().subscribe(result => {
-
-      if (result === 'save') {
-        // Kullanıcı kaydet butonuna bastığında
-        //this.modifyPointService.emitButtonClick();
-      } else {
-        // Kullanıcı iptal butonuna bastığında
+      
+      if (result !== 'save') {
+        
         // Noktanın eski konumunu geri al
         this.vectorSource.clear(); // Vektör kaynağını temizle
         this.map.removeInteraction(this.modifyInteraction); // ModifyInteraction'ı kaldır
         this.getPoints(); // Noktaları tekrar yükle
-       
-      }
+      } 
     });
 
 

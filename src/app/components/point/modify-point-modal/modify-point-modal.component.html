@@ -59,7 +59,7 @@
       >
         Kaydet
       </button>
-      <button type="button" (click)="pointModify()" class="  btn btn btn-warning mb-2 w-100">
+      <button *ngIf="!statusModiftButton" type="button" (click)="pointModify()" class="  btn btn btn-warning mb-2 w-100">
         Kordinat Güncelle
       </button>
       <div mat-dialog-actions class="mat-dialog-actions">

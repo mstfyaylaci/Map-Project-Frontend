@@ -17,6 +17,7 @@ export class ModifyPointModalComponent implements OnInit {
   
   pointUpdateForm: FormGroup;
   point: Point ;
+  statusModiftButton:boolean
 
   constructor(
     private pointService:PointService,
@@ -26,7 +27,7 @@ export class ModifyPointModalComponent implements OnInit {
     @Inject(MAT_DIALOG_DATA) public data: PointData,
     
     private modifyPointService:ModifyPointService
-  ) {}
+  ) { this.statusModiftButton=this.data.statusModifyButton}
   
   ngOnInit(): void {
     this.createForm();
@@ -86,6 +87,7 @@ pointModify() {
   // Point nesnesinin tüm bilgilerini servise gönder
   this.modifyPointService.changePoint(point);
   this.toastrService.info("Noktayı sürükleyebilirsiniz")
+  this.modifyPointService.emitButtonClick()
   this.dialogRef.close();
 }
 
