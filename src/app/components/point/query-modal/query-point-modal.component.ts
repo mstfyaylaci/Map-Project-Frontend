@@ -1,13 +1,19 @@
 import { Component, Inject, OnChanges, OnInit, SimpleChanges } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialog, MatDialogRef } from '@angular/material/dialog';
 
-import { Point } from '../../../models/point';
+
 import { PointService } from '../../../services/point.service';
 import { ToastrService } from 'ngx-toastr';
 import { ModifyPointModalComponent } from '../modify-point-modal/modify-point-modal.component';
 
 import { ModifyPointService } from '../../../services/modify-point.service';
 import { DeletePointService } from '../../../services/delete-point.service';
+
+
+import { PolygonService } from '../../../services/polygon/polygon.service';
+import { Polygon } from '../../../models/polygon';
+import { Point } from '../../../models/point';
+import { ModifyPolygonModalComponent } from '../polygon/modify-polygon-modal/modify-polygon-modal.component';
 
 
 @Component({
@@ -19,8 +25,12 @@ export class QueryPointModalComponent implements OnInit{
 
   points: Point[] = []
   point: Point
+  polygons:Polygon[]=[]
+  polygon:Polygon
+
   dataLoaded = false
   filterText=""
+  selectedOption: string = 'Points';
 
   /**
    *
@@ -30,7 +40,8 @@ export class QueryPointModalComponent implements OnInit{
     private modifyPointService:ModifyPointService,
     private toastrService:ToastrService,
     public dialog: MatDialog,
-    private deletePointService:DeletePointService
+    private deletePointService:DeletePointService,
+    private polygonService:PolygonService
    
     ) {
     
@@ -41,7 +52,7 @@ export class QueryPointModalComponent implements OnInit{
   ngOnInit(): void {
     
     this.getPoints()
-    
+    this.getPolygons()
   }
 
   deletePoint(point: Point) {
@@ -54,6 +65,17 @@ export class QueryPointModalComponent implements OnInit{
 
   }
 
+  deletePolygon(polygon:Polygon){
+    
+    this.polygonService.deletePolygon(polygon).subscribe(response=>{
+      this.toastrService.error(response.message,polygon.polygonName)
+      this.polygons=this.polygons.filter(p=>p!==polygon)
+      this.deletePointService.changePolygon(polygon)
+      this.deletePointService.emitButtonClick()
+
+    })
+  }
+
   getPoints() {
     
     this.pointService.getPoints().subscribe((response) => {
@@ -61,6 +83,14 @@ export class QueryPointModalComponent implements OnInit{
       this.toastrService.success(response.message)
       this.dataLoaded = true
      
+    })
+  }
+
+  getPolygons(){
+    this.polygonService.getPolygons().subscribe(response=>{
+      this.polygons=response.data
+      this.dataLoaded=true
+      
     })
   }
 
@@ -75,7 +105,27 @@ export class QueryPointModalComponent implements OnInit{
     })
     
   }
+  getModifyPolygon(polygonId:number){
+    this.dialogRef.close()
+    
+    this.polygonService.getPolygonById(polygonId).subscribe(response=>{
+      this.polygon=response.data
 
+      this.openModifyPolygonModal(this.polygon)
+      
+    })
+  }
+  openModifyPolygonModal(polygon:Polygon){
+    console.log(polygon);
+    const dialogRef = this.dialog.open(ModifyPolygonModalComponent, {
+
+      width: '600px',
+      height: '400px',
+
+      data: { polygon}
+
+    });
+  }
 
   openModifyPointModal(point:Point) {
     
@@ -89,9 +139,11 @@ export class QueryPointModalComponent implements OnInit{
 
     });
 
-    
+  }
 
+  onSelectChangeGeometry(event: Event): void {
+    const selectedValue = (event.target as HTMLSelectElement).value;
+    this.selectedOption = selectedValue;
     
-
   }
 }

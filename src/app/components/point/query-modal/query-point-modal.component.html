@@ -4,7 +4,7 @@
             
             <div class="row g-3 mb-4 align-items-center justify-content-between">
                 <div class="col-auto">
-                    <h1 class="app-page-title mb-0">Points</h1>
+                    <h1 class="app-page-title mb-0">{{selectedOption}}</h1>
                 </div>
                 <div class="col-auto">
                      <div class="page-utilities">
@@ -26,25 +26,15 @@
                                     {{filterText}} aradınız
                                 </div>
                             </div><!--//col-->
-                            <!-- <div class="col-auto">
+                            <div class="col-auto">
                                 
-                                <select class="form-select w-auto" >
-                                      <option selected value="option-1">All</option>
-                                      <option value="option-2">This week</option>
-                                      <option value="option-3">This month</option>
-                                      <option value="option-4">Last 3 months</option>
-                                      
+                                <select class="form-select w-auto" (change)="onSelectChangeGeometry($event)">
+                                    <option [value]="'Points'" [selected]="selectedOption === 'Points'">Points</option>
+                                    <option [value]="'Polygons'" [selected]="selectedOption === 'Polygons'">Polygons</option>
+                                    <option [value]="'LineString'" [selected]="selectedOption === 'LineString'">LineString</option>
                                 </select>
                             </div>
-                            <div class="col-auto">						    
-                                <a class="btn app-btn-secondary" href="#">
-                                    <svg width="1em" height="1em" viewBox="0 0 16 16" class="bi bi-download me-1" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
-                                    <path fill-rule="evenodd" d="M.5 9.9a.5.5 0 0 1 .5.5v2.5a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-2.5a.5.5 0 0 1 1 0v2.5a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2v-2.5a.5.5 0 0 1 .5-.5z"/>
-                                    <path fill-rule="evenodd" d="M7.646 11.854a.5.5 0 0 0 .708 0l3-3a.5.5 0 0 0-.708-.708L8.5 10.293V1.5a.5.5 0 0 0-1 0v8.793L5.354 8.146a.5.5 0 1 0-.708.708l3 3z"/>
-                                    </svg>
-                                    Download CSV
-                                </a>
-                            </div> -->
+                            
                         </div><!--//row-->
                     </div><!--//table-utilities-->
                 </div><!--//col-auto-->
@@ -56,12 +46,12 @@
                 <a class="flex-sm-fill text-sm-center nav-link"  id="orders-paid-tab" data-bs-toggle="tab" href="#orders-paid" role="tab" aria-controls="orders-paid" aria-selected="false">Paid</a>
                 <a class="flex-sm-fill text-sm-center nav-link" id="orders-pending-tab" data-bs-toggle="tab" href="#orders-pending" role="tab" aria-controls="orders-pending" aria-selected="false">Pending</a>
                 <a class="flex-sm-fill text-sm-center nav-link" id="orders-cancelled-tab" data-bs-toggle="tab" href="#orders-cancelled" role="tab" aria-controls="orders-cancelled" aria-selected="false">Cancelled</a>
-            </nav> -->
-            
+            </nav>
+             -->
             
             <div class="tab-content" id="orders-table-tab-content">
                 <div class="tab-pane fade show active" id="orders-all" role="tabpanel" aria-labelledby="orders-all-tab">
-                    <div class="app-card app-card-orders-table shadow-sm mb-5">
+                    <div *ngIf="selectedOption=='Points'" class="app-card app-card-orders-table shadow-sm mb-5">
                         <div class="app-card-body">
                             <div class="table-responsive">
                                 <table class="table app-table-hover mb-0 text-left">
@@ -94,6 +84,60 @@
                                                     <path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0V6z"/>
                                                     <path fill-rule="evenodd" d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1v1zM4.118 4L4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4H4.118zM2.5 3V2h11v1h-11z"/>
                                                   </svg>Delete</button>
+                                                </td>
+                                                
+                                                
+                                            </tr>
+                                        </ng-container>
+                                        <ng-template #noPointsTemplate>
+                                            <tr>
+                                                <td colspan="5" class="text-center">Hiç nokta yok</td>
+                                            </tr>
+                                        </ng-template>
+                                        
+                                       
+                                        
+                                        
+    
+                                    </tbody>
+                                </table>
+                            </div><!--//table-responsive-->
+                           
+                        </div><!--//app-card-body-->		
+                    </div><!--//app-card-->
+
+                    <div *ngIf="selectedOption=='Polygons'" class="app-card app-card-orders-table shadow-sm mb-5">
+                        <div class="app-card-body">
+                            <div class="table-responsive">
+                                <table class="table app-table-hover mb-0 text-left">
+                                    <thead>
+                                        <tr>
+                                           
+                                            <th class="cell">Polygon Name</th>
+                                            <th class="cell">WKT</th>
+                                            <th class="cell"></th>
+                                            <th class="cell"></th>
+                                        </tr>
+                                    </thead>
+                                    <tbody  >
+                                        <ng-container *ngIf="points.length > 0; else noPointsTemplate">
+                                            <tr  *ngFor="let polygon of polygons" >
+                                                
+                                                <td class="cell"><span class="truncate">{{polygon.polygonName}}</span></td>
+                                                <td class="cell">{{polygon.wkt}}</td>
+                                                
+                                                <td class="cell"><button (click)="getModifyPolygon(polygon.id)" type="button" class="btn btn-warning btn-sm" >
+                                                    
+                                                    <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" fill="currentColor" class="bi bi-pen me-2" viewBox="0 0 16 16">
+                                                        <path d="m13.498.795.149-.149a1.207 1.207 0 1 1 1.707 1.708l-.149.148a1.5 1.5 0 0 1-.059 2.059L4.854 14.854a.5.5 0 0 1-.233.131l-4 1a.5.5 0 0 1-.606-.606l1-4a.5.5 0 0 1 .131-.232l9.642-9.642a.5.5 0 0 0-.642.056L6.854 4.854a.5.5 0 1 1-.708-.708L9.44.854A1.5 1.5 0 0 1 11.5.796a1.5 1.5 0 0 1 1.998-.001m-.644.766a.5.5 0 0 0-.707 0L1.95 11.756l-.764 3.057 3.057-.764L14.44 3.854a.5.5 0 0 0 0-.708z"></path>
+                                                    </svg>
+                                                        
+                                                  </button>
+                                                </td>
+                                                <td class="cell"><button (click)="deletePolygon(polygon)"  class="btn btn-danger btn-sm "><svg width="1em" height="1em" viewBox="0 0 16 16" class="bi bi-trash me-2" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                                                    <path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0V6z"/>
+                                                    <path fill-rule="evenodd" d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1v1zM4.118 4L4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4H4.118zM2.5 3V2h11v1h-11z"/>
+                                                  </svg></button>
                                                 </td>
                                                 
                                                 

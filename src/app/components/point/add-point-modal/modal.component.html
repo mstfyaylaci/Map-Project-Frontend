@@ -1,7 +1,7 @@
 <div mat-dialog-content >
   <div class="dialog-header">
     
-    <h2 mat-dialog-title>Nokta Ekle</h2>
+    <h2 mat-dialog-title>Add Point</h2>
     
   </div>
 
@@ -19,7 +19,7 @@
         placeholder="Nokta ismi"
         required
       />
-      <label for="pointName">Nokta ismi</label>
+      <label for="pointName">Point Name</label>
     </div>
     <div class="form-floating mb-3">
       <input
@@ -27,9 +27,9 @@
         type="number"
         class="form-control rounded-3"
         id="pointNumber"
-        placeholder="Nokta Numarası"
+        placeholder="Point Number"
       />
-      <label for="pointNumber">Nokta Numarası</label>
+      <label for="pointNumber">Point Number</label>
     </div>
     <div class="form-floating mb-3">
       <input
@@ -37,9 +37,9 @@
         type="number"
         class="form-control rounded-3"
         id="latitude"
-        placeholder="Enlem"
+        placeholder="Latitude"
       />
-      <label for="latitude">Enlem</label>
+      <label for="latitude">Latitude</label>
     </div>
     <div class="form-floating mb-3">
       <input
@@ -47,19 +47,19 @@
         type="number"
         class="form-control rounded-3"
         id="longitude"
-        placeholder="Boylam"
+        placeholder="Longitude"
       />
-      <label for="longitude">Boylam</label>
+      <label for="longitude">Longitude</label>
     </div>
     <button
       class="w-100 mb-2 btn btn btn-primary"
       type="submit"
       [disabled]="pointAddForm.invalid"
     >
-      Ekle
+      Add
     </button>
     <div mat-dialog-actions class="mat-dialog-actions">
-      <button class="w-100 mb-2 btn btn btn-danger" (click)="onNoClick()">İptal</button>
+      <button class="w-100 mb-2 btn btn btn-danger" (click)="onNoClick()">Cancel</button>
     </div>
   </form>
 </div>

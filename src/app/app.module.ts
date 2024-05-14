@@ -7,18 +7,21 @@ import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 
 import { MapComponent } from './components/map/map.component';
-import { PointComponent } from './components/point/point.component';
+
 
 import { NaviComponent } from './components/navi/navi.component';
 
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { AddPointComponent } from './components/point/add-point/add-point.component';
+
 import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
-import { ModalComponent } from './components/point/modal/modal.component';
+import { ModalComponent } from './components/point/add-point-modal/modal.component';
 import { FilterPipePipe } from './pipes/filter-pipe.pipe';
 import { ToastrModule } from 'ngx-toastr';
-import { QueryPointModalComponent } from './components/point/query-point-modal/query-point-modal.component';
+import { QueryPointModalComponent } from './components/point/query-modal/query-point-modal.component';
 import { ModifyPointModalComponent } from './components/point/modify-point-modal/modify-point-modal.component';
+import { AddPolygonModalComponent } from './components/point/polygon/add-polygon-modal/add-polygon-modal.component';
+import { ModifyPolygonModalComponent } from './components/point/polygon/modify-polygon-modal/modify-polygon-modal.component';
+
 
 
 
@@ -28,14 +31,17 @@ import { ModifyPointModalComponent } from './components/point/modify-point-modal
     AppComponent,
     
     MapComponent,
-    PointComponent,
+    
     
     NaviComponent,
-    AddPointComponent,
+   
     ModalComponent,
     FilterPipePipe,
     QueryPointModalComponent,
-    ModifyPointModalComponent
+    ModifyPointModalComponent,
+    AddPolygonModalComponent,
+    ModifyPolygonModalComponent,
+    
     
     
    

@@ -1,0 +1,22 @@
+#polygonNameInput {
+    width: 80%;
+    font-size: 14px;
+    margin: 0 auto; /* Bu satır ile input alanını yatayda ortalar */
+    display: block; /* Input alanını blok düzene getirir, böylece diğer öğelerle yatayda hizalanabilir */
+  }
+  .dialog-header {
+    
+    margin-top: 25px;
+    
+    align-items: center;
+    margin-bottom: 20px;
+    text-align: center; /* Opsiyonel: Aralarda boşluk bırakmak için */
+  }
+  
+  .dialog-header h2 {
+    margin: 0; /* H2 elementinin default margin'lerini kaldırır */
+  }
+  .mat-dialog-actions{
+    margin: 0; 
+  }
+ 

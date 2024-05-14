@@ -1,18 +1,18 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { AddPointComponent } from './add-point.component';
+import { AddPolygonModalComponent } from './add-polygon-modal.component';
 
-describe('AddPointComponent', () => {
-  let component: AddPointComponent;
-  let fixture: ComponentFixture<AddPointComponent>;
+describe('AddPolygonModalComponent', () => {
+  let component: AddPolygonModalComponent;
+  let fixture: ComponentFixture<AddPolygonModalComponent>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [AddPointComponent]
+      declarations: [AddPolygonModalComponent]
     })
     .compileComponents();
     
-    fixture = TestBed.createComponent(AddPointComponent);
+    fixture = TestBed.createComponent(AddPolygonModalComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });

@@ -8,6 +8,7 @@ import { Point } from '../../../models/point';
 
 import { ModifyPointService } from '../../../services/modify-point.service';
 
+
 @Component({
   selector: 'app-modify-point-modal',
   templateUrl: './modify-point-modal.component.html',
@@ -26,7 +27,9 @@ export class ModifyPointModalComponent implements OnInit {
     public dialogRef: MatDialogRef<ModifyPointModalComponent>,
     @Inject(MAT_DIALOG_DATA) public data: PointData,
     
-    private modifyPointService:ModifyPointService
+    private modifyPointService:ModifyPointService,
+    
+    
   ) { this.statusModiftButton=this.data.statusModifyButton}
   
   ngOnInit(): void {
@@ -65,10 +68,11 @@ update() {
       (response) => {
         // Başarılı yanıt durumunda kullanıcıya bir başarı mesajı gösterelim
         this.toastrService.success(response.message);
-        
+        console.log("gdfg");
         // Dialog penceresini kapatıp formu sıfırlayalım
         this.dialogRef.close();
         this.pointUpdateForm.reset();
+        
       },
       (error) => {
         // Hata durumunda kullanıcıya bir hata mesajı gösterelim
@@ -80,7 +84,6 @@ update() {
 }
 
 
-
 pointModify() {
   const point = this.data.point;
 
@@ -90,6 +93,8 @@ pointModify() {
   this.modifyPointService.emitButtonClick()
   this.dialogRef.close();
 }
+
+
 
 
 }

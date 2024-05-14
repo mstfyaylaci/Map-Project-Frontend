@@ -6,22 +6,21 @@ import { Subject } from 'rxjs';
   providedIn: 'root'
 })
 export class AddPointService {
-
+ 
 
   
 
   constructor() { }
 
   
-  private buttonClickSource = new Subject<void>();
+  private buttonClickSource = new Subject<string>();
   buttonClick$ = this.buttonClickSource.asObservable();
 
-  emitButtonClick() {
-    this.buttonClickSource.next();
+  emitButtonClick(geometry: string) {
+    this.buttonClickSource.next(geometry);
   }
 
   
-
   
   
 

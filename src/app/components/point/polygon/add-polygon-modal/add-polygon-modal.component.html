@@ -1,0 +1,56 @@
+<div mat-dialog-content >
+    <div class="dialog-header">
+      
+      <h2 mat-dialog-title>Add Polygon</h2>
+      
+    </div>
+  
+    <form
+      [formGroup]="polygonAddForm"
+      (ngSubmit)="add()"
+      id="polygonNameInput"
+    >
+      <div class="form-floating mb-3">
+        <input
+          formControlName="polygonName"
+          type="text"
+          class="form-control rounded-3"
+          id="polygonName"
+          placeholder="Polygon Name"
+          required
+        />
+        <label for="polygonName">Polygon Name</label>
+      </div>
+      <!-- <div class="form-floating mb-3">
+        <input
+          formControlName="polygonNumber"
+          type="number"
+          class="form-control rounded-3"
+          id="polygonNumber"
+          placeholder="Polygon Number"
+        />
+        <label for="polygonNumber">Polygon Number</label>
+      </div> -->
+      <div class="form-floating mb-3">
+        <input
+          formControlName="wkt"
+          type="text"
+          class="form-control rounded-3"
+          id="wkt"
+          placeholder="Wkt"
+        />
+        <label for="wkt">WKT</label>
+      </div>
+      
+      <button
+        class="w-100 mb-2 btn btn btn-primary"
+        type="submit"
+        [disabled]="polygonAddForm.invalid"
+      >
+        Add
+      </button>
+      <div mat-dialog-actions class="mat-dialog-actions">
+        <button class="w-100 mb-2 btn btn btn-danger" (click)="onNoClick()">Cancel</button>
+      </div>
+    </form>
+  </div>

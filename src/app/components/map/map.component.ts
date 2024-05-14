@@ -5,18 +5,20 @@ import View from 'ol/View';
 import { OSM } from 'ol/source';
 import TileLayer from 'ol/layer/Tile';
 import { Point } from '../../models/point';
-import { Point as OlPoint } from 'ol/geom';
+import { Point as OlPoint, Polygon as OlPolygon } from 'ol/geom';
+import OlFormatWKT from 'ol/format/WKT';
 import { fromLonLat, transform } from 'ol/proj';
 import { Coordinate, toStringHDMS } from 'ol/coordinate';
 import { Collection, Feature, Overlay } from 'ol';
 import VectorSource from 'ol/source/Vector';
 import VectorLayer from 'ol/layer/Vector';
+import WKT from 'ol/format/WKT.js';
 import { Circle as CircleStyle, Fill, Stroke, Style } from 'ol/style';
 import { Draw, Modify, Select, Snap, } from 'ol/interaction';
 import Icon from 'ol/style/Icon';
 import { PointService } from '../../services/point.service';
 
-import { ModalComponent } from '../point/modal/modal.component';
+import { ModalComponent } from '../point/add-point-modal/modal.component';
 import { MatDialog } from '@angular/material/dialog';
 import { ToastrService } from 'ngx-toastr';
 import { Subscription, every } from 'rxjs';
@@ -25,6 +27,11 @@ import { AddPointService } from '../../services/add-point.service';
 import { ModifyPointModalComponent } from '../point/modify-point-modal/modify-point-modal.component';
 import { ModifyPointService } from '../../services/modify-point.service';
 import { DeletePointService } from '../../services/delete-point.service';
+
+import { PolygonService } from '../../services/polygon/polygon.service';
+import { Polygon } from '../../models/polygon';
+import { AddPolygonModalComponent } from '../point/polygon/add-polygon-modal/add-polygon-modal.component';
+import { ModifyPolygonModalComponent } from '../point/polygon/modify-polygon-modal/modify-polygon-modal.component';
 
 @Component({
   selector: 'app-map',
@@ -42,19 +49,26 @@ export class MapComponent implements OnInit, AfterViewInit {
 
 
   isDrawingModeActive: boolean = false;
+
   public vectorSource = new VectorSource();
   public vectorLayer = new VectorLayer()
-  collection = new Collection()
+
   modifyInteraction: Modify
+
   private addPointButton: Subscription;
   private modifyPointButton: Subscription;
   private deletePointButton: Subscription;
+  private deletePolygonButton: Subscription
+  private modifyPolygonButton: Subscription
 
+  selectedGeometry: string | null = null;
 
   point: Point = new Point();
   modifyPoint: Point | null = null;
   points: Point[] = []
 
+  polygons: Polygon[] = []
+  polygon: Polygon
 
   public clickedCoordinate: Coordinate;
   public cordinate: string
@@ -71,24 +85,36 @@ export class MapComponent implements OnInit, AfterViewInit {
     private toastrService: ToastrService,
     private addPointService: AddPointService,
     private deletePointService: DeletePointService,
-    private modifyPointService: ModifyPointService
+    private modifyPointService: ModifyPointService,
+    private polygonService: PolygonService
+
 
 
   ) {
-    this.addPointButton = this.addPointService.buttonClick$.subscribe(() => {
+    this.addPointButton = this.addPointService.buttonClick$.subscribe((geometry) => {
 
+      this.selectedGeometry = geometry
       this.toggleDrawingMode()
     })
 
     this.modifyPointButton = this.modifyPointService.buttonClick$.subscribe(() => {
-      this.modifyCoordinate()
+      this.modifyPointCoordinate()
     })
 
     this.deletePointButton = this.deletePointService.buttonClick$.subscribe(() => {
+
       this.deletePointFeature()
     })
+    this.deletePolygonButton = this.deletePointService.buttonClick$.subscribe(() => {
+      this.deletePolygonFeature()
+    })
+    this.modifyPolygonButton = this.modifyPointService.buttonClick$.subscribe(() => {
+      this.modifyPolygon()
+    })
+
 
   }
+
 
 
 
@@ -100,9 +126,10 @@ export class MapComponent implements OnInit, AfterViewInit {
     this.getMap();
     this.initOverlay();
     this.getPoints();
-
+    this.getPolygons()
 
   }
+
 
   getMap(): void {
 
@@ -140,8 +167,11 @@ export class MapComponent implements OnInit, AfterViewInit {
     // });
   }
 
+
   getPoints(): void {
-    
+
+
+
     this.pointService.getPoints().subscribe(response => {
       this.points = response.data;
 
@@ -168,15 +198,43 @@ export class MapComponent implements OnInit, AfterViewInit {
 
       const vectorLayer = new VectorLayer({
         source: vectorSource,
-        style:style
+        style: style
       });
-     
+
 
 
       this.map.addLayer(vectorLayer);
     });
   }
- 
+
+  getPolygons() {
+    const vectorSource = this.vectorSource
+
+
+    this.polygonService.getPolygons().subscribe(response => {
+      this.polygons = response.data
+
+      // Veritabanından alınan polygonları işle
+      this.polygons.forEach(polygonData => {
+
+        const format = new WKT();
+        const feature = format.readFeature(polygonData.wkt, {
+          dataProjection: 'EPSG:4326',
+          featureProjection: 'EPSG:3857'
+        });
+        vectorSource.addFeature(feature);
+      });
+
+      const vectorLayer = new VectorLayer({
+        source: vectorSource
+      });
+      this.map.addLayer(vectorLayer);
+
+      // Haritayı güncelle
+      //this.map.getView().fit(vectorSource.getExtent(), {padding: [50, 50, 50, 50]});
+    })
+  }
+
 
   initOverlay(): void {
     this.overlay = new Overlay({
@@ -205,51 +263,48 @@ export class MapComponent implements OnInit, AfterViewInit {
 
 
 
-    dialogRef.afterClosed().subscribe(result => {
-      this.toggleDrawingMode() /// Burasıda sorulacak!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-      if (result==='save') {
-      
-        console.log("dsfsfd");
-      }else{
-        this.vectorSource.clear()
-        this.map.removeInteraction(this.draw)
-        this.getPoints()
-      }
 
-     
+    dialogRef.afterClosed().subscribe(result => {
+      //this.toggleDrawingMode() /// Burasıda sorulacak!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+      //this.isDrawingModeActive==false
+
+      this.vectorSource.clear()
+      this.map.removeInteraction(this.draw)
+      this.getPoints()
 
     });
 
   }
 
+  openAddPolygonModal(wktGeometry: string) {
 
-  enableDrawingTool() {
+    const dialogRef = this.dialog.open(AddPolygonModalComponent, {
+
+      width: '600px',
+      height: '370px',
+
+      data: { wkt: wktGeometry }
+
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+
+
+      this.vectorSource.clear()
+      this.map.removeInteraction(this.draw)
+      this.getPoints()
+      this.getPolygons()
 
 
 
+    });
+  }
+
+
+  enablePointDrawingTool() {
 
     const source = this.vectorSource;
 
-    // const vectorLayer = new VectorLayer({
-    //   source: source,
-
-    //   style: new Style({
-    //     fill: new Fill({
-    //       color: 'rgba(255, 255, 255, 0.2)',
-    //     }),
-    //     stroke: new Stroke({
-    //       color: '#ffcc33',
-    //       width: 2,
-    //     }),
-    //     image: new Icon({
-    //       anchor: [0.5, 1],
-    //       src: 'assets/point-2.png',
-    //       scale: 0.04
-    //     }),
-    //   }),
-    // });
-
-    //this.map.addLayer(this.vectorLayer); //Burasu sorulacak!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
     this.draw = new Draw({
       source: source,
@@ -263,9 +318,6 @@ export class MapComponent implements OnInit, AfterViewInit {
       })
     });
 
-
-
-
     this.draw.on('drawend', (event) => {
 
       const feature = event.feature;
@@ -276,52 +328,85 @@ export class MapComponent implements OnInit, AfterViewInit {
           const transformCoordinates = transform(coordinates, 'EPSG:3857', 'EPSG:4326');
           this.openAddPointModal(transformCoordinates);
 
-
         }
 
       }
 
     });
 
-
     this.map.addInteraction(this.draw);
-
-
-
 
 
   }
 
+  enablePolygonDrawingTool() {
+
+    const source = this.vectorSource;
+
+    const vectorLayer = new VectorLayer({
+      source: source
+    });
+    this.map.addLayer(vectorLayer);
+
+    this.draw = new Draw({
+      source: source,
+      type: 'Polygon', // Burada çizim aracının türünü belirtebilirsiniz, örneğin 'LineString', 'Polygon' vb.
+
+    });
+
+    this.draw.on('drawend', (event) => {
+      const feature = event.feature;
+      const geometry = feature.getGeometry();
+      if (geometry !== undefined) {
+
+        const transformGeometry = geometry.clone().transform('EPSG:3857', 'EPSG:4326')
+
+        const format = new WKT();
+        const wktGeometry = format.writeGeometry(transformGeometry);
+        this.openAddPolygonModal(wktGeometry)
+      }
+    });
+
+    this.map.addInteraction(this.draw)
+
+    // this.modifyInteraction = new Modify({ source: this.vectorSource });
+    // this.map.addInteraction(this.modifyInteraction);
+
+    // const snap = new Snap({ source: this.vectorSource });
+    // this.map.addInteraction(snap);
+
+  }
 
 
   toggleDrawingMode() {
 
-    this.isDrawingModeActive = !this.isDrawingModeActive;
-
-    if (this.isDrawingModeActive) {
-      this.toastrService.success("Çizim aracı aktif")
-
-      this.enableDrawingTool()
-
-
-
-    } else {
-
-      this.toastrService.warning("Çizim aracı devre dışı")
-
+    if (this.draw) {
       this.map.removeInteraction(this.draw);
-
     }
+
+    if (this.selectedGeometry === "Point") {
+      this.toastrService.success(this.selectedGeometry + " added is active")
+      this.enablePointDrawingTool()
+      this.isDrawingModeActive = false
+    }
+    else if (this.selectedGeometry === "Polygon") {
+      this.toastrService.success(this.selectedGeometry + " added is active")
+      this.enablePolygonDrawingTool()
+      this.isDrawingModeActive = false
+    }
+
+
+
 
   }
 
-  modifyCoordinate() {
+  modifyPointCoordinate() {
 
     this.modifyPointService.currentPoint.subscribe(point => {
 
       if (point) {
 
-        this.initModifyInteraction(point);
+        this.modifyPointInteraction(point);
       }
     })
 
@@ -331,14 +416,14 @@ export class MapComponent implements OnInit, AfterViewInit {
 
 
 
-  initModifyInteraction(point: Point): void {
-    
+  modifyPointInteraction(point: Point): void {
+
     const latitude = point.latitude; // Varsayılan olarak latitude ve longitude olduğunu varsayalım
     const longitude = point.longitude;
     const transformedCoordinates = fromLonLat([latitude, longitude]);;
 
-    
-  
+
+
     const featureToRemove = new Feature({
       geometry: new OlPoint(transformedCoordinates),
     });
@@ -379,11 +464,11 @@ export class MapComponent implements OnInit, AfterViewInit {
     });
 
 
-    
+
     this.map.addInteraction(this.modifyInteraction);
 
-    
-    
+
+
     // Modify işlemi tamamlandığında, değiştirilen koordinatları servise gönderiyoruz
     this.modifyInteraction.on('modifyend', (event) => {
       this.vectorSource.removeFeature(feature);
@@ -407,7 +492,7 @@ export class MapComponent implements OnInit, AfterViewInit {
         updatePoint.longitude = modifiedLongitude
 
 
-   
+
         this.openModifyPointModal(updatePoint)
         //this.coordinateService.changeCoordinate(modifiedLatitude, modifiedLongitude);
 
@@ -420,32 +505,161 @@ export class MapComponent implements OnInit, AfterViewInit {
 
   openModifyPointModal(point: Point) {
 
-    
-   
+
+
     const dialogRef = this.dialog.open(ModifyPointModalComponent, {
 
       width: '400px',
       height: '530px',
 
-      
-      data: { point,statusModifyButton:true }
+
+      data: { point, statusModifyButton: true }
 
     });
 
 
 
     dialogRef.afterClosed().subscribe(result => {
-      
+
       if (result !== 'save') {
-        
+
         // Noktanın eski konumunu geri al
         this.vectorSource.clear(); // Vektör kaynağını temizle
         this.map.removeInteraction(this.modifyInteraction); // ModifyInteraction'ı kaldır
         this.getPoints(); // Noktaları tekrar yükle
-      } 
+      }
+
     });
 
 
+
+
+  }
+
+  modifyPolygon() {
+    this.modifyPointService.currentPolygon.subscribe(polygon => {
+      if (polygon) {
+        this.modifyPolygonInteraction(polygon)
+      }
+    })
+  }
+
+  modifyPolygonInteraction(polygon: Polygon) {
+
+
+    if (!polygon.wkt) {
+      console.error('WKT özelliği bulunamadı.');
+      return;
+    }
+
+    // WKT özelliğini kullanarak geometriyi oluştur
+    const format = new OlFormatWKT();
+    const targetWKT = polygon.wkt;
+
+    // Vektör katmanındaki hedef poligonu bulun
+    let targetFeature: Feature | undefined; ;
+    const features = this.vectorSource.getFeatures();
+    features.forEach(feature => {
+      const geometry = feature.getGeometry();
+
+      if (geometry instanceof OlPolygon) {
+
+        const featureWKT = format.writeGeometry(geometry, {
+          dataProjection: 'EPSG:4326',
+          featureProjection: 'EPSG:3857'
+        });
+
+        if (targetWKT === featureWKT) {
+          targetFeature = feature;
+          return; // Döngüyü sonlandırın
+        }
+        else {
+          // Diğer poligonları geçici olarak kaldırın
+          this.vectorSource.removeFeature(feature);
+        }
+      }
+
+
+    });
+
+    if (!targetFeature) {
+      console.error('Hedef poligon bulunamadı.');
+      return;
+    }
+    // Modify etkileşimini oluşturun ve hedef poligonu belirtin
+    const modifyInteraction = new Modify({
+      features: new Collection([targetFeature])
+
+    });
+
+    // Etkileşimi haritaya ekleyin
+    this.map.addInteraction(modifyInteraction);
+
+    let updatePolygonWkt:string;
+
+    // Düzenleme işlemi tamamlandığında, değişiklikleri işlemek için bir olay dinleyici ekleyin
+    modifyInteraction.on('modifyend', (event) => {
+      const modifiedFeatures = event.features.getArray();
+      const modifiedGeometry = modifiedFeatures[0].getGeometry();
+      if (modifiedGeometry) {
+        const modifiedWKT = format.writeGeometry(modifiedGeometry, {
+          dataProjection: 'EPSG:4326',
+          featureProjection: 'EPSG:3857'
+        });
+        
+        // Değiştirilmiş WKT'yi kullanarak yapılan değişiklikleri işleyebilirsiniz
+        console.log('Modified WKT:', modifiedWKT);
+        updatePolygonWkt=modifiedWKT
+      }
+
+
+    });
+
+    this.map.on('click', (event) => {
+      
+      // Tıklanan noktanın koordinatlarını alın
+      const clickedCoordinate = event.coordinate;
+
+      // Tıklanan noktanın hangi poligonun içinde olduğunu kontrol edin
+      const clickedPolygon = this.vectorSource.getFeaturesAtCoordinate(clickedCoordinate).find(feature => {
+        const geometry = feature.getGeometry();
+        if (geometry instanceof OlPolygon) {
+          return geometry.intersectsCoordinate(clickedCoordinate);
+        }
+        return false;
+      });
+      if (clickedPolygon === targetFeature) {
+        console.log('Düzenleme işlemi sonlandırıldı.');
+        this.map.removeInteraction(modifyInteraction);
+
+        const updatePolygon=polygon
+        updatePolygon.wkt=updatePolygonWkt
+        
+        this.openModifyPolygonModal(updatePolygon)
+        //this.getPolygons()
+      }
+
+
+    });
+  }
+
+  openModifyPolygonModal(polygon:Polygon){
+    const dialogRef = this.dialog.open(ModifyPolygonModalComponent, {
+
+      width: '600px',
+      height: '370px',
+
+
+      data: { polygon, statusModifyButton: true}
+
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      this.vectorSource.clear();
+      this.getPolygons()
+      this.getPoints()
+
+    });
 
 
   }
@@ -475,4 +689,42 @@ export class MapComponent implements OnInit, AfterViewInit {
     })
   }
 
+  deletePolygonFeature() {
+    this.deletePointService.currentPolygon.subscribe(deletePolygon => {
+      if (deletePolygon && deletePolygon.wkt) {
+        // WKT özelliğini kullanarak geometriyi oluştur
+        const format = new WKT();
+        // const geometry = format.readGeometry(deletePolygon.wkt, {
+        //   dataProjection: 'EPSG:4326',
+        //   featureProjection: 'EPSG:3857'
+        // });
+
+        // Vektör katmanındaki poligonları kontrol et ve kaldır
+        const features = this.vectorSource.getFeatures();
+        features.forEach(feature => {
+          const geometry = feature.getGeometry();
+          if (geometry instanceof OlPolygon) {
+            // Poligonların WKT formatına dönüştürülmesi gerekir
+
+            const wkt = format.writeGeometry(geometry, {
+              dataProjection: 'EPSG:4326',
+              featureProjection: 'EPSG:3857'
+            });
+
+            // Karşılaştırma için WKT'yi kullan
+            if (wkt === deletePolygon.wkt) {
+
+              this.vectorSource.removeFeature(feature);
+              return;
+            }
+          }
+        });
+
+        // Eğer harita üzerindeki poligonların sayısı sıfırsa, vektör katmanını da kaldır
+        if (this.vectorSource.getFeatures().length === 0) {
+          this.map.removeLayer(this.vectorLayer);
+        }
+      }
+    });
+  }
 }
